@@ -9,7 +9,7 @@ type ModalProps = {
   isOpen: boolean;
   close: () => void;
   closeOnClickOutside?: boolean;
-  className: string;
+  className?: string;
 };
 
 const Modal = ({

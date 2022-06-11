@@ -7,3 +7,7 @@ export enum TOKENS {
   UNI_TOKEN = "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
   WETH = "0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6",
 }
+
+export enum CONTRACTS {
+  SWAP = "0xD83dE69d0FdE80A1901Ef8d9B2bEf981dAECa826",
+}

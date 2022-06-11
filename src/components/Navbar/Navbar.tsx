@@ -16,6 +16,8 @@ import {
 } from "ethylene/hooks";
 import { GOERLI } from "constants/networks";
 import { formatAddress } from "utils/formatAddress";
+import { MdAccountCircle } from "react-icons/md";
+import { IoMdWallet } from "react-icons/io";
 
 const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
@@ -72,6 +74,7 @@ const Navbar = () => {
 
           <div className={styles.buttons}>
             <Button
+              textPosition="right"
               height="48px"
               onClick={() => {
                 if (!auth) connect();
@@ -81,8 +84,12 @@ const Navbar = () => {
                 }
               }}
               color="neutral"
-              className={styles.themeChanger}
+              className={clsnm(styles.themeChanger, styles.accountButton)}
             >
+              <span className={styles.walletIcon}>
+                {auth && isRightNetwork ? <MdAccountCircle /> : <IoMdWallet />}
+              </span>
+
               {!isRightNetwork && auth
                 ? "Switch network"
                 : auth && address

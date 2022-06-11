@@ -138,12 +138,15 @@
   opacity: 0 !important;
 }
 
+.walletIcon {
+  display: flex;
+  margin-right: 8px;
+  font-size: 24px;
+}
+
 .themeChanger {
   color: var(--text);
   margin-left: 12px;
-}
-
-.themeChangerSm {
 }
 
 @media (max-width: 768px) {

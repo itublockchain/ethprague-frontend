@@ -1,4 +1,4 @@
-import { TOKENS } from "constants/adresses";
+import { TOKENS } from "constants/addresses";
 import UniTokenLogo from "assets/images/tokens/uni.png";
 
 export interface Token {
