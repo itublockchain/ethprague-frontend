@@ -1,35 +1,23 @@
-import { useConnection } from "ethylene/hooks";
-import { useTheme } from "hooks/useTheme";
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { setTheme } from "store/slicers/theme";
+import { PATHS } from "constants/paths";
+import { useInitialTheme, useRightStarknetNetwork } from "hooks";
+import { Home, Swap } from "pages";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+
+const Main = () => {
+  useRightStarknetNetwork();
+  useInitialTheme();
+  return null;
+};
 
 function App() {
-  const { connect } = useConnection();
-  const { theme, toggleTheme } = useTheme();
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    const localStorageTheme = localStorage.getItem("theme");
-    if (localStorageTheme === "light") {
-      dispatch(setTheme("light"));
-      document.body.classList.remove("dark");
-      document.body.classList.add("light");
-    } else {
-      dispatch(setTheme("dark"));
-      document.body.classList.remove("light");
-      document.body.classList.add("dark");
-    }
-  }, []);
-
   return (
-    <div>
-      <button style={{ color: `var(--text)` }} onClick={connect}>
-        Connect Ethereum
-      </button>
-      <div>{theme}</div>
-      <button onClick={toggleTheme}>toggle</button>
-    </div>
+    <BrowserRouter>
+      <Main />
+      <Routes>
+        <Route path={PATHS.home} element={<Home />} />
+        <Route path={PATHS.swap} element={<Swap />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
