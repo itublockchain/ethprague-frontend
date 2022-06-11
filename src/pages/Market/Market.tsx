@@ -2,15 +2,64 @@ import { useEffect, useRef, useState } from "react";
 import styles from "./Market.module.scss";
 import Embrio from "assets/images/embrio.png";
 import { Container } from "ui";
-import { Navbar } from "components";
+import { useAccount, useConnection } from "ethylene/hooks";
+import { Contract } from "ethers";
+import { CONTRACTS } from "constants/addresses";
+import { MARKETPLACE_ABI } from "constants/abi";
+import { formatAddress } from "utils/formatAddress";
+
+const useListedNFT = () => {
+  const [events, setEvents] = useState<any[]>([]);
+  const [isFetching, setIsFetching] = useState(false);
+  const { address, provider, auth } = useAccount();
+
+  const fetch = async () => {
+    if (!provider) return;
+
+    const CONTRACT = new Contract(
+      CONTRACTS.MARKETPLACE,
+      MARKETPLACE_ABI,
+      provider
+    );
+
+    const filter = CONTRACT?.filters.AuctionListed(address);
+    let startBlock = 7045760;
+    const endBlock = provider?.blockNumber;
+    let allEvents: any[] = [];
+
+    for (let i = startBlock; i < endBlock; i += 5000) {
+      const _startBlock = i;
+      const _endBlock = Math.min(endBlock, i + 4999);
+      const events = await CONTRACT?.queryFilter(
+        filter as any,
+        _startBlock,
+        _endBlock
+      );
+      allEvents = [...allEvents, ...(events as any)];
+    }
+    setEvents(allEvents);
+    setIsFetching(false);
+  };
+
+  useEffect(() => {
+    if (!auth) {
+      return;
+    }
+    fetch();
+  }, [auth]);
+
+  return { fetch, isFetching, events };
+};
 
 const Market = () => {
   const [loaded, setLoaded] = useState(false);
   const videoRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
   const nftsRef = useRef<HTMLDivElement>(null);
-
   const [videoPassed, setVideoPassed] = useState(false);
+  const { address, auth } = useAccount();
+  const { connect } = useConnection();
+  const { events } = useListedNFT();
 
   useEffect(() => {
     document.body.style.background = "black";
@@ -24,9 +73,9 @@ const Market = () => {
     }, 17000);
 
     return () => {
-      document.body.style.background = "inherit";
       clearTimeout(timer);
       clearTimeout(timer2);
+      //document.body.style.background = "inherit";
     };
   }, []);
 
@@ -59,34 +108,39 @@ const Market = () => {
     }
   }, [videoPassed, mainRef, videoRef]);
 
-  return loaded ? (
+  console.log(events);
+
+  return (
     <>
-      <div ref={videoRef} className={styles.wrapper}>
-        <h1 className={styles.btnShine}>
-          According to Digiconomist, Ethereum consumes about 112 terawatt-hours
-          of electricity per year.
-        </h1>
-        <h1 className={styles.btnShine2}>
-          Which makes more than 650 terawatt-hours of electricity since 2015.
-        </h1>
-        <h1 className={styles.btnShine3}>
-          Use Viridis and contribute to more sustainable world!
-        </h1>
-      </div>
+      {loaded && (
+        <div ref={videoRef} className={styles.wrapper}>
+          <h1 className={styles.btnShine}>
+            According to Digiconomist, Ethereum consumes about 112
+            terawatt-hours of electricity per year.
+          </h1>
+          <h1 className={styles.btnShine2}>
+            Which makes more than 650 terawatt-hours of electricity since 2015.
+          </h1>
+          <h1 className={styles.btnShine3}>
+            Use Viridis and contribute to more sustainable world!
+          </h1>
+        </div>
+      )}
       <div ref={mainRef} className={styles.main}>
         <div className={styles.navigation}>
           <a className={styles.link} href="/">
             Home
           </a>
-          <a className={styles.link} href="/profile">
-            Profile
+          <a className={styles.link} onClick={connect}>
+            {auth ? address && formatAddress(address) : "Connect"}
           </a>
         </div>
         <img src={Embrio} />
         <div className={styles.text}>
           <h2 className={styles.header}>
             Discover the listed NFT's and contribute to sustainable projects
-            with the savings, provided by Starknet
+            with the savings, provided by{" "}
+            <span style={{ fontWeight: "600" }}>Starknet</span>
           </h2>
         </div>
       </div>
@@ -97,7 +151,7 @@ const Market = () => {
         <div className={styles.card}></div>
       </Container>
     </>
-  ) : null;
+  );
 };
 
 export { Market };

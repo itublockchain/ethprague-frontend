@@ -8,6 +8,7 @@
 .link {
   color: white;
   text-decoration: none;
+  cursor: pointer;
 
   &:hover {
     transform: scale(1.05);
@@ -54,12 +55,13 @@
 }
 
 .nfts {
+  opacity: 0;
   margin-bottom: 5rem;
   display: flex;
   flex-wrap: wrap;
   transform: translateY(-120px);
   z-index: 2;
-  justify-content: space-between;
+  justify-content: center;
 }
 
 .card {
