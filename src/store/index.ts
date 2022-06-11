@@ -1,12 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useSelector } from "react-redux";
 import starknetSlice from "store/slicers/starknet";
+import swapSlice from "store/slicers/swap";
 import themeSlice from "store/slicers/theme";
 
 export const store = configureStore({
   reducer: {
     theme: themeSlice,
     starknet: starknetSlice,
+    swap: swapSlice,
   },
   middleware: (getDefaultMiddleware) => {
     const customizedMiddleware = getDefaultMiddleware({

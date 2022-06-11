@@ -1,10 +1,17 @@
+body {
+  --midnight: rgb(36, 36, 36);
+}
+
 body.light {
-  --text: black;
-  --modal-bg: rgb(36, 38, 76);
-  --navbar-bg: rgb(36, 38, 76);
-  --main-bg: rgb(20, 22, 59);
-  --navbar-item: rgb(230, 230, 230);
-  --navbar-active: white;
+  --text: var(--midnight);
+  --modal-bg: white;
+  --navbar-bg: white;
+  --main-bg: rgb(242, 246, 250);
+  --navbar-item: rgba(10, 10, 10, 0.5);
+  --navbar-active: var(--midnight);
+  --neutral-button-bg: rgb(242, 246, 250);
+  --swap-bg: white;
+  --label: rgb(174, 175, 194);
 }
 
 body.dark {
@@ -12,10 +19,24 @@ body.dark {
   --modal-bg: rgb(36, 38, 76);
   --navbar-bg: rgb(36, 38, 76);
   --main-bg: rgb(20, 22, 59);
-  --navbar-item: rgb(230, 230, 230);
+  --navbar-item: rgb(192, 189, 189);
   --navbar-active: white;
+  --neutral-button-bg: rgb(20, 22, 59);
+  --swap-bg: rgb(36, 38, 76);
+  --label: rgb(86, 90, 105);
 }
 
 body {
   background-color: var(--main-bg);
+}
+
+.link {
+  text-decoration: none !important;
+  color: inherit;
+}
+.icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--text);
 }

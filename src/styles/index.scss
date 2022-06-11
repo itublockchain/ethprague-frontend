@@ -11,6 +11,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+body {
+  --navbar-height: 78px;
+}
+
 * {
   box-sizing: border-box;
   font-family: "Montserrat", sans-serif;
