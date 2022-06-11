@@ -215,8 +215,8 @@ const Swap = () => {
         const payload = [
           router.address,
           percent * 100,
+          parseEther(formatValue(ethValue, 18)),
           parseEther(formatValue(tokenValue, 18)),
-          parseEther(formatValue(amountMax, 18)),
           getPath("token"),
           actualDeadline,
         ];
@@ -287,7 +287,10 @@ const Swap = () => {
             <input
               onChange={(e) => {
                 try {
-                  if (!regexp.test(e.target.value)) {
+                  if (
+                    !regexp.test(e.target.value) ||
+                    e.target.value.includes("-")
+                  ) {
                     return;
                   }
                   setTolerance(e.target.value);
@@ -339,7 +342,16 @@ const Swap = () => {
           <span>Deadline (minutes)</span>
           <div className={clsnm(styles.inputWrapper, styles.modal)}>
             <input
-              onChange={(e) => setDeadline(e.target.value)}
+              onChange={(e) => {
+                if (
+                  !regexp.test(e.target.value) ||
+                  Number(e.target.value) > 120 ||
+                  e.target.value.includes("-")
+                ) {
+                  return;
+                }
+                setDeadline(e.target.value);
+              }}
               value={deadline}
               className={clsnm(styles.input, styles.modal)}
             />
@@ -558,6 +570,7 @@ const Swap = () => {
                 swapContract?.methods.swapExactTokensForETH.isLoading ||
                 tokenContract?.methods.approve.isLoading
               }
+              disabled={returnButtonText() === "Insufficient balance"}
               className={styles.swapButton}
               color="neutral"
               onClick={onSwap}
