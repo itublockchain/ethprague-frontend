@@ -5,11 +5,17 @@ import styles from "./Container.module.scss";
 interface ContainerProps extends ComponentPropsWithoutRef<"div"> {
   className?: string;
   children: ReactNode;
+  elRef?: any;
 }
 
-const Container = ({ children, className, ...props }: ContainerProps) => {
+const Container = ({
+  children,
+  className,
+  elRef,
+  ...props
+}: ContainerProps) => {
   return (
-    <div className={clsnm(styles.container, className)} {...props}>
+    <div ref={elRef} className={clsnm(styles.container, className)} {...props}>
       {children}
     </div>
   );
