@@ -35,6 +35,8 @@ import { IS_PROD } from "ethylene/constants";
 import { toast } from "react-toastify";
 import ReactSlider from "react-slider";
 import { useAllowance } from "hooks/useAllowance";
+import { Art } from "pages/Swap/Art";
+import { BsQuestionCircle } from "react-icons/bs";
 
 const regexp = /^-?\d*\.?\d*$/;
 
@@ -494,7 +496,9 @@ const Swap = () => {
     <>
       <Navbar />
       <Container className={clsnm(styles.wrapper)}>
-        <div className={styles.art}>asfafs</div>
+        <div className={styles.art}>
+          <Art percent={percent} />
+        </div>
         <div className={styles.swapWrapper}>
           <div className={styles.box}>
             <div className={clsnm(styles.rowBetween)}>
@@ -538,13 +542,18 @@ const Swap = () => {
                 justifyContent: "space-between",
               }}
             >
-              <div className={styles.label}>Donation percent</div>
+              <div className={styles.label}>
+                <span>Donation percent </span>
+                <span>
+                  <BsQuestionCircle />
+                </span>
+              </div>
               <span>{percent}%</span>
             </div>
 
             <ReactSlider
               max={99}
-              min={0}
+              min={1}
               value={percent}
               onChange={(e: any) => {
                 setPercent(e);

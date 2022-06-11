@@ -105,7 +105,7 @@ const Navbar = () => {
             )}
           </div>
           <div className={styles.nfts}>
-            <Link to={"/nfts"} className={clsnm(styles.profile, "link")}>
+            <Link to={PATHS.profile} className={clsnm(styles.profile, "link")}>
               See my NFT's
             </Link>
           </div>
@@ -211,13 +211,14 @@ const Navbar = () => {
             {item.soon && <span className={styles.soon}>SOON</span>}
           </div>
         ))}
-        <button
+        <Button
+          style={{ marginTop: "1rem", height: "48px" }}
           onClick={toggleTheme}
           color="neutral"
           className={styles.themeChangerSm}
         >
           {theme === "dark" ? <BsMoonFill /> : <BsSunFill />}
-        </button>
+        </Button>
       </div>
     </header>
   );

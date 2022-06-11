@@ -106,8 +106,19 @@
 }
 
 .label {
+  display: flex;
+  align-items: center;
   color: var(--label);
   font-size: 12px;
+
+  & span {
+    display: flex;
+    align-items: center;
+  }
+
+  & svg {
+    margin-left: 0.3rem;
+  }
 }
 
 .header {
@@ -211,4 +222,22 @@
   height: 10px;
   background: var(--main-bg);
   border-radius: 24px;
+}
+
+@media (max-width: 900px) {
+  .wrapper {
+    flex-direction: column;
+  }
+  .art {
+    order: 2;
+    width: 90%;
+  }
+  .swapWrapper {
+    margin-top: 2rem;
+    order: 1;
+    width: 95%;
+  }
+  .box {
+    width: 100%;
+  }
 }
