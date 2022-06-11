@@ -13,7 +13,7 @@ type ModalProps = {
 };
 
 const Modal = ({
-  children = [],
+  children,
   isOpen,
   close,
   closeOnClickOutside = true,

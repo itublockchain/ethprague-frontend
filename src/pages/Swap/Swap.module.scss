@@ -49,6 +49,10 @@
   margin-bottom: 8px;
 }
 
+.modal {
+  width: 400px;
+}
+
 .inputWrapper {
   height: 56px;
   display: flex;
@@ -57,6 +61,34 @@
   width: 100%;
   background-color: var(--main-bg);
   border-radius: 12px;
+  position: relative;
+
+  &.modal {
+    margin-top: 1rem;
+    height: 42px;
+  }
+}
+
+.inputButtons {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  right: 0px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.inputButton {
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+  margin-right: 0.2rem;
+  margin-left: 0.2rem;
+  width: max-content !important;
+  background-color: var(--swap-bg) !important;
+
+  &.active {
+    background-color: var(--swap-bg-dark) !important;
+  }
 }
 
 .input {
@@ -67,6 +99,10 @@
   font-size: 28px;
   color: var(--text);
   font-weight: 500;
+
+  &.modal {
+    font-size: 18px !important;
+  }
 }
 
 .label {
@@ -100,4 +136,80 @@
 .inputTokenName {
   display: flex;
   font-weight: 500;
+}
+
+.modalHeader {
+  font-size: 18px;
+  display: block;
+  margin-bottom: 2rem;
+}
+
+.formWrapper {
+  & span {
+    font-size: 12px;
+    color: var(--label);
+  }
+
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+}
+
+.swapButton {
+  margin-top: 2rem;
+  height: 48px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.sliderWrapper {
+  display: flex;
+  margin-top: 2rem;
+  position: relative;
+}
+
+.thumb {
+  box-shadow: var(--shadow1);
+  min-width: 20px;
+  min-height: 20px;
+  max-height: 20px;
+  max-width: 20px;
+  border-radius: 50%;
+  background: var(--label);
+  user-select: none;
+  border: 5px solid white;
+  position: absolute;
+  transform: translate(-4px, -16px);
+  outline: none !important;
+
+  &:focus {
+    outline: none !important;
+    display: none;
+  }
+}
+
+.trackWrapper {
+  display: flex;
+  margin-top: 1.5rem;
+
+  &:nth-child(2) {
+    display: none;
+  }
+}
+
+.trackActive {
+  position: relative;
+  height: 10px;
+  background: var(--label);
+  border-radius: 24px;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+
+.trackPassive {
+  position: relative;
+  height: 10px;
+  background: var(--main-bg);
+  border-radius: 24px;
 }

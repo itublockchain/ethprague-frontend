@@ -54,6 +54,11 @@
   font-size: 14px;
   line-height: 22px;
 
+  &.loading {
+    opacity: 0;
+    pointer-events: none;
+  }
+
   &.blue {
     color: white;
   }
@@ -67,4 +72,11 @@
 
 .fullwidth {
   width: 100%;
+}
+
+.loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }

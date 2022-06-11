@@ -24,3 +24,9 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+.thumb.active {
+  opacity: 1;
+  cursor: pointer;
+  outline: none !important;
+}

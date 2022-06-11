@@ -5,6 +5,7 @@ import styles from "./Swap.module.scss";
 import { HiAdjustments } from "react-icons/hi";
 import { useEffect, useState } from "react";
 import { useTypedSelector } from "store";
+import { MaxUint256 } from "@ethersproject/constants";
 import {
   useAccount,
   useBalance,
@@ -12,7 +13,9 @@ import {
   useConnection,
   useContract,
   useProvider,
+  useERC20Balance,
   useRightNetwork,
+  useERC20Contract,
 } from "ethylene/hooks";
 import { GOERLI } from "constants/networks";
 import { useNavigate } from "react-router-dom";
@@ -22,16 +25,15 @@ import { formatValue } from "utils/formatValue";
 import { formatBalance } from "utils/formatBalance";
 import { IoMdSwap } from "react-icons/io";
 import EthLogo from "assets/images/tokens/eth.png";
-import { CONTRACTS, ROUTERS, TOKENS } from "constants/addresses";
-import { SWAP_ABI, UNISWAP_ROUTER_ABI } from "constants/abi";
-import { ethers } from "ethers";
-import {
-  parseEther,
-  parseUnits,
-} from "ethylene/node_modules/@ethersproject/units";
+import { CONTRACTS, TOKENS } from "constants/addresses";
+import { SWAP_ABI } from "constants/abi";
+import { parseEther } from "ethylene/node_modules/@ethersproject/units";
 import { formatEther } from "ethers/lib/utils";
 import { ROUTER_LIST } from "constants/routers";
 import { useDebounce, useModal } from "hooks";
+import { IS_PROD } from "ethylene/constants";
+import { toast } from "react-toastify";
+import ReactSlider from "react-slider";
 
 const regexp = /^-?\d*\.?\d*$/;
 
@@ -39,7 +41,9 @@ type SwapMethods =
   | "swapETHForExactTokens"
   | "swapExactETHForTokens"
   | "swapExactTokensForETH"
-  | "swapTokensForExactETH";
+  | "swapTokensForExactETH"
+  | "getAmountsIn"
+  | "getAmountsOut";
 
 const Swap = () => {
   const [ethValue, setEthValue] = useState("");
@@ -47,17 +51,17 @@ const Swap = () => {
   const { from, lastChange, token } = useTypedSelector((state) => state.swap);
   const { auth, address } = useAccount();
   const { connect } = useConnection();
-  const { isRightNetwork } = useRightNetwork(GOERLI);
+  const { isRightNetwork, switchTo } = useRightNetwork(GOERLI);
   const navigate = useNavigate();
   const { fetchBlockTimestamp } = useBlockTimestamp();
   const dispatch = useDispatch();
-  const { balance } = useBalance({ direct: true });
+
   const { provider } = useProvider();
 
-  const [deadline, setDeadline] = useState(30);
-  const [tolerance, setTolerance] = useState(0.5);
+  const [deadline, setDeadline] = useState("30");
+  const [tolerance, setTolerance] = useState("0.5");
   const [router, setRouter] = useState(ROUTER_LIST[0]);
-  const [percent, setPercent] = useState(5);
+  const [percent, setPercent] = useState(25);
 
   const swapContract = useContract<SwapMethods>({
     address: CONTRACTS.SWAP,
@@ -65,11 +69,16 @@ const Swap = () => {
     provider: provider,
   });
 
-  const uniswapContract = useContract({
-    address: ROUTERS.uniswap,
-    abi: UNISWAP_ROUTER_ABI,
-    provider: provider,
+  const tokenContract = useERC20Contract({
+    address: token.address,
   });
+
+  const { balance, fetchBalance } = useBalance({ direct: true });
+  const { balance: erc20Balance, fetchBalance: fetchErc20Balance } =
+    useERC20Balance({
+      address: token.address,
+      deps: [token],
+    });
 
   const getOutputAmount = async (amount: any, path: any) => {
     if (amount == 0 || !amount) {
@@ -81,10 +90,9 @@ const Swap = () => {
       return;
     }
 
-    console.log(amount, path);
-
-    const res = await uniswapContract?.methods.getAmountsOut.execute(
-      parseUnits(amount, 18),
+    const res = await swapContract?.methods.getAmountsOut.execute(
+      router.address,
+      parseEther(amount),
       path
     );
 
@@ -107,7 +115,8 @@ const Swap = () => {
       return;
     }
 
-    const res = await uniswapContract?.methods.getAmountsIn.execute(
+    const res = await swapContract?.methods.getAmountsIn.execute(
+      router.address,
       parseEther(amount),
       path
     );
@@ -146,32 +155,114 @@ const Swap = () => {
       return;
     }
 
-    const actualDeadline = timestamp + 60 * deadline;
+    const actualDeadline = timestamp + 60 * Number(deadline);
 
     const swapFunction = async () => {
       if (lastChange === "eth" && from === "eth") {
         let amountMin: number | string = Number(tokenValue);
-        amountMin = String(amountMin * ((100 - tolerance) / 100));
-        console.log(amountMin);
+        amountMin = String(amountMin * ((100 - Number(tolerance) * 10) / 100));
 
         const payload = [
           router.address,
           percent * 100,
-          ethers.utils.parseEther("0.1"),
+          parseEther(formatValue(amountMin, 18)),
           getPath("eth"),
           actualDeadline,
           { value: parseEther(ethValue) },
         ];
 
-        await swapContract?.methods.swapExactETHForTokens.executeAndWait(
+        return await swapContract?.methods.swapExactETHForTokens.executeAndWait(
           ...payload
         );
       } else if (lastChange === "token" && from === "eth") {
+        let toleranceInput: number | string = Number(ethValue);
+        toleranceInput = String(
+          toleranceInput * ((100 + Number(tolerance)) / 100)
+        );
+
+        const payload = [
+          router.address,
+          percent * 100,
+          parseEther(formatValue(tokenValue, 18)),
+          getPath("eth"),
+          actualDeadline,
+          { value: parseEther(formatValue(toleranceInput, 18)) },
+        ];
+
+        return await swapContract?.methods.swapETHForExactTokens.executeAndWait(
+          ...payload
+        );
       } else if (lastChange === "token" && from === "token") {
+        let amountMin: number | string = Number(ethValue);
+        amountMin = String(amountMin * ((100 - Number(tolerance)) / 100));
+
+        const payload = [
+          router.address,
+          percent * 100,
+          parseEther(formatValue(tokenValue, 18)),
+          parseEther(formatValue(amountMin, 18)),
+          getPath("token"),
+          actualDeadline,
+        ];
+
+        return await swapContract?.methods.swapExactTokensForETH.executeAndWait(
+          ...payload
+        );
       } else if (lastChange === "eth" && from === "token") {
+        let amountMax: number | string = Number(tokenValue);
+        amountMax = String(amountMax * ((100 + Number(tolerance)) / 100));
+
+        const payload = [
+          router.address,
+          percent * 100,
+          parseEther(formatValue(tokenValue, 18)),
+          parseEther(formatValue(amountMax, 18)),
+          getPath("token"),
+          actualDeadline,
+        ];
+        return await swapContract?.methods.swapTokensForExactETH.executeAndWait(
+          ...payload
+        );
       }
     };
-    swapFunction();
+    try {
+      const allowance = await tokenContract?.methods.allowance.execute(
+        address,
+        CONTRACTS.SWAP
+      );
+
+      let res;
+      if (from === "token") {
+        let amount = Number(tokenValue);
+        if (lastChange === "eth") {
+          amount = amount * ((100 + Number(tolerance)) / 100);
+        }
+        if (Number(formatEther(allowance)) < amount) {
+          await tokenContract?.methods.approve.executeAndWait(
+            CONTRACTS.SWAP,
+            MaxUint256
+          );
+        }
+        res = await swapFunction();
+      } else {
+        res = await swapFunction();
+      }
+
+      if (res) {
+        setTimeout(() => {
+          fetchBalance();
+          fetchErc20Balance();
+        }, 3000);
+
+        toast("Transaction confirmed");
+        setTokenValue("");
+        setEthValue("");
+      }
+    } catch (err) {
+      if (!IS_PROD) {
+        console.error(err);
+      }
+    }
   };
 
   useEffect(() => {
@@ -188,8 +279,78 @@ const Swap = () => {
 
   const ETHInput = (
     <>
-      <Modal isOpen={modal.isOpen} close={modal.close}>
-        aasffs
+      <Modal className={styles.modal} isOpen={modal.isOpen} close={modal.close}>
+        <span className={styles.modalHeader}>Settings</span>
+        <div className={styles.formWrapper}>
+          <span>Slippage tolerance %</span>
+          <div className={clsnm(styles.inputWrapper, styles.modal)}>
+            <input
+              onChange={(e) => {
+                try {
+                  if (!regexp.test(e.target.value)) {
+                    return;
+                  }
+                  setTolerance(e.target.value);
+                } catch {}
+              }}
+              value={tolerance}
+              className={clsnm(styles.input, styles.modal)}
+            />
+            <div className={styles.inputButtons}>
+              <Button
+                className={clsnm(
+                  styles.inputButton,
+                  tolerance == "0.1" && styles.active
+                )}
+                onClick={() => setTolerance("0.1")}
+                color="ghost"
+              >
+                0.1
+              </Button>
+              <Button
+                className={clsnm(
+                  styles.inputButton,
+                  tolerance == "0.5" && styles.active
+                )}
+                onClick={() => setTolerance("0.5")}
+                color="ghost"
+              >
+                0.5
+              </Button>
+              <Button
+                className={clsnm(
+                  styles.inputButton,
+                  tolerance == "1" && styles.active
+                )}
+                onClick={() => setTolerance("1")}
+                color="ghost"
+              >
+                1
+              </Button>
+            </div>
+          </div>
+          {Number(tolerance) <= 0.15 && (
+            <span style={{ color: "red", marginTop: "0.5rem" }}>
+              Your transaction may fail
+            </span>
+          )}
+        </div>
+        <div className={styles.formWrapper} style={{ marginTop: "1rem" }}>
+          <span>Deadline (minutes)</span>
+          <div className={clsnm(styles.inputWrapper, styles.modal)}>
+            <input
+              onChange={(e) => setDeadline(e.target.value)}
+              value={deadline}
+              className={clsnm(styles.input, styles.modal)}
+            />
+          </div>
+        </div>
+        <div className={styles.formWrapper} style={{ marginTop: "1rem" }}>
+          <span>Router</span>
+          <div className={clsnm(styles.inputWrapper, styles.modal)}>
+            Uniswap
+          </div>
+        </div>
       </Modal>
       <div className={clsnm(styles.rowBetween, styles.mb)}>
         <span className={styles.label}>{from === "eth" ? "From" : "To"}</span>
@@ -232,7 +393,9 @@ const Swap = () => {
       <div className={clsnm(styles.rowBetween, styles.mb)}>
         <span className={styles.label}>{from === "eth" ? "To" : "From"} </span>
         <span className={styles.balance}>
-          {auth && isRightNetwork ? `Balance: ${formatBalance(balance)}` : "-"}
+          {auth && isRightNetwork
+            ? `Balance: ${formatBalance(erc20Balance)}`
+            : "-"}
         </span>
       </div>
       <div className={styles.row}>
@@ -264,6 +427,39 @@ const Swap = () => {
       </div>
     </>
   );
+
+  const returnButtonText = () => {
+    if (!auth) return "Connect Wallet";
+    if (!isRightNetwork) return "Wrong network";
+    try {
+      if (from === "eth" && balance.lt(parseEther(ethValue))) {
+        return "Insufficient balance";
+      }
+    } catch {}
+    try {
+      if (
+        from === "token" &&
+        Number(formatEther(erc20Balance)) < Number(tokenValue)
+      ) {
+        return "Insufficient balance";
+      }
+    } catch {}
+
+    return "Swap";
+  };
+
+  const onSwap = () => {
+    if (!auth) {
+      connect();
+      return;
+    }
+    if (!isRightNetwork) {
+      switchTo();
+      return;
+    }
+
+    handleSwap();
+  };
 
   return (
     <>
@@ -303,8 +499,71 @@ const Swap = () => {
                 </span>
               </Button>
             </div>
+
             {from === "token" ? ETHInput : TokenInput}
-            <button onClick={handleSwap}>Swap</button>
+            <div
+              style={{
+                marginTop: "2.5rem",
+                display: "flex",
+                width: "100%",
+                justifyContent: "space-between",
+              }}
+            >
+              <div className={styles.label}>Donation percent</div>
+              <span>{percent}%</span>
+            </div>
+
+            <ReactSlider
+              max={100}
+              min={0}
+              value={percent}
+              onChange={(e: any) => {
+                setPercent(e);
+              }}
+              renderThumb={(props: any, state: any) => (
+                <div
+                  style={{
+                    border: "none",
+                    outline: "none",
+                  }}
+                  {...props}
+                >
+                  <div className={styles.thumb}></div>
+                </div>
+              )}
+              //@ts-ignore
+              renderTrack={() => {
+                return (
+                  <div className={styles.trackWrapper}>
+                    <div
+                      style={{ width: `${(percent / 100) * 100}%` }}
+                      className={styles.trackActive}
+                    ></div>
+                    <div
+                      style={{
+                        width: `${100 - (percent / 100) * 100}%`,
+                      }}
+                      className={styles.trackPassive}
+                    ></div>
+                  </div>
+                );
+              }}
+            />
+
+            <Button
+              loading={
+                swapContract?.methods.swapETHForExactTokens.isLoading ||
+                swapContract?.methods.swapExactETHForTokens.isLoading ||
+                swapContract?.methods.swapTokensForExactETH.isLoading ||
+                swapContract?.methods.swapExactTokensForETH.isLoading ||
+                tokenContract?.methods.approve.isLoading
+              }
+              className={styles.swapButton}
+              color="neutral"
+              onClick={onSwap}
+            >
+              {returnButtonText()}
+            </Button>
           </div>
         </div>
       </Container>

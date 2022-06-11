@@ -1,6 +1,6 @@
 export enum ROUTERS {
   "sushi" = "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
-  "uniswap" = "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
+  "uniswap" = "0xf164fC0Ec4E93095b804a4795bBe1e041497b92a",
 }
 
 export enum TOKENS {
@@ -9,5 +9,5 @@ export enum TOKENS {
 }
 
 export enum CONTRACTS {
-  SWAP = "0xD83dE69d0FdE80A1901Ef8d9B2bEf981dAECa826",
+  SWAP = "0x647B386631e5BFbe8Bb94DF6B0e2eC925E50F7D6",
 }

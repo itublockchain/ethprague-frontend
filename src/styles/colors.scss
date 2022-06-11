@@ -11,6 +11,7 @@ body.light {
   --navbar-active: var(--midnight);
   --neutral-button-bg: rgb(242, 246, 250);
   --swap-bg: white;
+  --swap-bg-dark: rgb(208, 206, 206);
   --label: rgb(174, 175, 194);
 }
 
@@ -23,7 +24,8 @@ body.dark {
   --navbar-active: white;
   --neutral-button-bg: rgb(20, 22, 59);
   --swap-bg: rgb(36, 38, 76);
-  --label: rgb(86, 90, 105);
+  --swap-bg-dark: rgb(53, 56, 112);
+  --label: rgb(105, 109, 124);
 }
 
 body {
