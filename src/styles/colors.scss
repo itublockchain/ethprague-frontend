@@ -1,7 +1,21 @@
 body.light {
   --text: black;
+  --modal-bg: rgb(36, 38, 76);
+  --navbar-bg: rgb(36, 38, 76);
+  --main-bg: rgb(20, 22, 59);
+  --navbar-item: rgb(230, 230, 230);
+  --navbar-active: white;
 }
 
 body.dark {
   --text: white;
+  --modal-bg: rgb(36, 38, 76);
+  --navbar-bg: rgb(36, 38, 76);
+  --main-bg: rgb(20, 22, 59);
+  --navbar-item: rgb(230, 230, 230);
+  --navbar-active: white;
+}
+
+body {
+  background-color: var(--main-bg);
 }
