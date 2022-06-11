@@ -34,6 +34,7 @@ import { useDebounce, useModal } from "hooks";
 import { IS_PROD } from "ethylene/constants";
 import { toast } from "react-toastify";
 import ReactSlider from "react-slider";
+import { useAllowance } from "hooks/useAllowance";
 
 const regexp = /^-?\d*\.?\d*$/;
 
@@ -55,6 +56,10 @@ const Swap = () => {
   const navigate = useNavigate();
   const { fetchBlockTimestamp } = useBlockTimestamp();
   const dispatch = useDispatch();
+  const { allowance, tokenAllowance } = useAllowance(
+    token.address,
+    CONTRACTS.SWAP
+  );
 
   const { provider } = useProvider();
 
@@ -147,7 +152,7 @@ const Swap = () => {
   );
 
   const handleSwap = async () => {
-    if (!auth || !isRightNetwork) return;
+    if (!auth || !isRightNetwork || !allowance) return;
 
     const timestamp = await fetchBlockTimestamp();
     if (!timestamp) {
@@ -226,11 +231,6 @@ const Swap = () => {
       }
     };
     try {
-      const allowance = await tokenContract?.methods.allowance.execute(
-        address,
-        CONTRACTS.SWAP
-      );
-
       let res;
       if (from === "token") {
         let amount = Number(tokenValue);
@@ -242,8 +242,12 @@ const Swap = () => {
             CONTRACTS.SWAP,
             MaxUint256
           );
+          setTimeout(() => {
+            tokenAllowance();
+          }, 2000);
+        } else {
+          res = await swapFunction();
         }
-        res = await swapFunction();
       } else {
         res = await swapFunction();
       }
@@ -443,6 +447,19 @@ const Swap = () => {
   const returnButtonText = () => {
     if (!auth) return "Connect Wallet";
     if (!isRightNetwork) return "Wrong network";
+
+    if (from === "token") {
+      if (!allowance) return `Approve ${token.name}`;
+
+      let _amount = Number(tokenValue);
+      if (lastChange === "eth") {
+        _amount = _amount * ((100 + Number(tolerance)) / 100);
+      }
+      if (Number(formatEther(allowance)) < _amount) {
+        return `Approve ${token.name}`;
+      }
+    }
+
     try {
       if (from === "eth" && balance.lt(parseEther(ethValue))) {
         return "Insufficient balance";
@@ -489,7 +506,7 @@ const Swap = () => {
                 width="20px"
               >
                 <span className="icon">
-                  <HiAdjustments fontSize={"24px"} />
+                  <HiAdjustments fontSize={"20px"} />
                 </span>
               </Button>
             </div>
@@ -526,7 +543,7 @@ const Swap = () => {
             </div>
 
             <ReactSlider
-              max={100}
+              max={99}
               min={0}
               value={percent}
               onChange={(e: any) => {

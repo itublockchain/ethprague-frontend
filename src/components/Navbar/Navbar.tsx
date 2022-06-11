@@ -2,11 +2,11 @@ import styles from "./Navbar.module.scss";
 import { useTheme } from "hooks/useTheme";
 import { useMemo, useRef, useState } from "react";
 import { clsnm } from "utils/clsnm";
-import { FaBars, FaTimes } from "react-icons/fa";
+import { FaBars, FaCopy, FaTimes } from "react-icons/fa";
 import { BsMoonFill, BsSunFill } from "react-icons/bs";
 import { PATHS } from "constants/paths";
 import { Link, useLocation } from "react-router-dom";
-import { Button, Container } from "ui";
+import { Button, Container, Modal } from "ui";
 import TestLogo from "assets/images/testlogo.png";
 import {
   useAuth,
@@ -18,13 +18,15 @@ import { GOERLI } from "constants/networks";
 import { formatAddress } from "utils/formatAddress";
 import { MdAccountCircle } from "react-icons/md";
 import { IoMdWallet } from "react-icons/io";
+import { useModal } from "hooks";
+import { toast } from "react-toastify";
 
 const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
   const { pathname } = useLocation();
   const auth = useAuth();
   const { isRightNetwork, switchTo } = useRightNetwork(GOERLI);
-  const { connect } = useConnection();
+  const { connect, disconnect } = useConnection();
   const { address } = useAccount();
 
   const LINKS = useMemo(() => {
@@ -41,14 +43,74 @@ const Navbar = () => {
         soon: false,
         active: pathname.startsWith(PATHS.swap),
       },
+      {
+        name: "Market",
+        url: PATHS.market,
+        soon: false,
+        active: pathname.startsWith(PATHS.market),
+      },
     ];
   }, [pathname]);
 
   const [show, setShow] = useState(false);
   const smallMenuRef = useRef<HTMLDivElement>(null);
+  const modal = useModal();
 
   return (
     <header className={styles.navbar} id="PeraFinanceHeader">
+      <Modal isOpen={modal.isOpen} close={modal.close}>
+        <div className={styles.modal}>
+          <span>Ethereum Account</span>
+          <div className={styles.inner}>
+            <div
+              style={{ justifyContent: "space-between" }}
+              className={styles.row}
+            >
+              <span>Connected</span>
+              <Button
+                onClick={() => {
+                  modal.close();
+                  disconnect();
+                }}
+                color="pink"
+              >
+                Disconnect
+              </Button>
+            </div>
+            {address && (
+              <div
+                style={{ justifyContent: "space-between" }}
+                className={styles.row}
+              >
+                <span className={styles.address}>{formatAddress(address)}</span>
+              </div>
+            )}
+            {address && (
+              <div
+                style={{ justifyContent: "space-between" }}
+                className={styles.row}
+              >
+                <span
+                  onClick={() => {
+                    navigator.clipboard.writeText(address).then(() => {
+                      toast("Address copied to clipboard", { autoClose: 1000 });
+                    });
+                  }}
+                  className={styles.copy}
+                >
+                  <FaCopy />
+                  <span>Copy to clipboard</span>
+                </span>
+              </div>
+            )}
+          </div>
+          <div className={styles.nfts}>
+            <Link to={"/nfts"} className={clsnm(styles.profile, "link")}>
+              See my NFT's
+            </Link>
+          </div>
+        </div>
+      </Modal>
       <nav>
         <Container className={styles.container}>
           <div className={styles.left}>
@@ -81,6 +143,7 @@ const Navbar = () => {
                 if (!isRightNetwork) {
                   switchTo();
                 } else {
+                  modal.open();
                 }
               }}
               color="neutral"
@@ -91,7 +154,7 @@ const Navbar = () => {
               </span>
 
               {!isRightNetwork && auth
-                ? "Switch network"
+                ? "Switch to Goerli"
                 : auth && address
                 ? `${formatAddress(address)}`
                 : "Connect"}

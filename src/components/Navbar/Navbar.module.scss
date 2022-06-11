@@ -47,7 +47,7 @@
 
 .linkWrapper {
   align-self: flex-start;
-  margin-right: 1rem;
+  margin-right: 2rem;
   position: relative;
   &:hover {
     transform: scale(1.02);
@@ -204,4 +204,62 @@
 .left {
   display: flex;
   align-items: center;
+}
+
+.modal {
+  background-color: var(--modal-bg);
+  color: var(--text);
+  width: 412px;
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--label);
+  border-radius: 8px;
+  margin-top: 1.5rem;
+  padding: 1rem 1.5rem;
+}
+.row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+}
+
+.address {
+  margin-top: 0.5rem;
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.copy {
+  font-size: 12px;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+
+  & span {
+    margin-left: 0.5rem;
+  }
+}
+
+.nfts {
+  margin-top: 0.5rem;
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  transition: 0.2s linear;
+
+  &:hover {
+    color: #fafafa;
+    transform: scale(1.05);
+    transition: 0.2s linear;
+  }
+}
+
+@media (max-width: 512px) {
+  .modal {
+    width: 90vw;
+  }
 }
