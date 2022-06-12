@@ -107,23 +107,6 @@ const Market = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    /* if (!videoRef.current || !mainRef.current) return;
-
-    const value = localStorage.getItem("ViridisVideoPlayer");
-
-    if (value) {
-      setVideoPassed(true);
-    } else {
-      videoRef.current.style.opacity = "1";
-      mainRef.current.style.opacity = "0";
-      localStorage.setItem("ViridisVideoPlayer", "true");
-      setTimeout(() => {
-        setVideoPassed(true);
-      }, 17000);
-    } */
-  }, []);
-
-  useEffect(() => {
     if (!mainRef.current || !videoRef.current || !nftsRef.current) return;
     if (videoPassed) {
       videoRef.current.hidden = true;
@@ -197,26 +180,11 @@ const Market = () => {
         <img src={Embrio} />
         <div className={styles.text}>
           <h2 className={styles.header}>
-            Discover the listed NFT's and contribute to sustainable projects
-            with the savings, provided by{" "}
-            <span style={{ fontWeight: "600" }}>Starknet</span>
+            Empower your L1 NFT sale by scaling your auction on{" "}
+            <span style={{ fontWeight: "600" }}>Starknet</span> and contribute
+            to curing nature.
           </h2>
         </div>
-      </div>
-      <div
-        style={{ display: videoPassed ? "none" : "inherit" }}
-        ref={videoRef}
-        className={styles.wrapper}
-      >
-        <h1 className={styles.btnShine}>
-          Ethereum has consumed and continues to consume a total of 407.95 TWh
-          of energy since May 2017.
-        </h1>
-        <h1 className={styles.btnShine2}>
-          As Ethereum is already moving towards a greener path, we must do
-          something about our carbon footprint
-        </h1>
-        <h1 className={styles.btnShine3}>Witness the rebirth with Viridis!</h1>
       </div>
       <Container elRef={nftsRef} className={styles.nfts}>
         {events.slice(1).map((item: NFT, index) => {

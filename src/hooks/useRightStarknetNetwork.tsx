@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { toast } from "react-toastify";
 import { useTypedSelector } from "store";
 
 export const useRightStarknetNetwork = (
@@ -17,7 +18,10 @@ export const useRightStarknetNetwork = (
 
     const interval = setInterval(() => {
       if (globalStarknet?.chainId != chainId) {
-        callback?.();
+        toast("Only Goerli Testnet is supported");
+        setTimeout(() => {
+          callback?.();
+        }, 3000);
       }
     }, 1000);
 
