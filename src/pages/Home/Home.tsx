@@ -10,6 +10,26 @@ const Home = () => {
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const onMouseMove = (e: any) => {
+      if (!wrapperRef.current) return;
+      if (window.scrollY < 120) {
+        const posX = (e.screenX / document.body.offsetWidth) * 100;
+        const posY = (e.screenY / document.body.scrollHeight) * 100;
+        wrapperRef.current.style.backgroundPosition = ` ${
+          50 + posX * 0.1 ?? 50
+        }% ${50 - posY ?? 50}%`;
+      } else {
+        wrapperRef.current.style.backgroundPosition = "50% 50%";
+      }
+    };
+
+    window.addEventListener("mousemove", onMouseMove);
+    return () => {
+      window.removeEventListener("mousemove", onMouseMove);
+    };
+  }, []);
+
+  useEffect(() => {
     document.body.style.background = "black";
     const onScroll = (e: any) => {
       if (textRef.current) {
@@ -21,7 +41,6 @@ const Home = () => {
       }
     };
     window.addEventListener("scroll", onScroll);
-
     return () => {
       document.body.style.removeProperty("background");
       window.removeEventListener("scroll", onScroll);
