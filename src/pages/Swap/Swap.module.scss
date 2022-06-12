@@ -186,7 +186,7 @@
   max-height: 20px;
   max-width: 20px;
   border-radius: 50%;
-  background: var(--label);
+  background: green;
   user-select: none;
   border: 5px solid white;
   position: absolute;
@@ -211,7 +211,7 @@
 .trackActive {
   position: relative;
   height: 10px;
-  background: var(--label);
+  background: green;
   border-radius: 24px;
   border-top-right-radius: 0px;
   border-bottom-right-radius: 0px;

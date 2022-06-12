@@ -3,6 +3,7 @@
   overflow: hidden;
   transition: 0.2s linear;
   opacity: 0;
+  z-index: 100;
 }
 
 .link {
@@ -45,6 +46,10 @@
   }
 }
 
+.show {
+  opacity: 1;
+}
+
 @keyframes grow {
   from {
     width: 50%;
@@ -59,22 +64,23 @@
   margin-bottom: 5rem;
   display: flex;
   flex-wrap: wrap;
-  transform: translateY(-120px);
+  transform: translateY(-80px);
   z-index: 2;
   justify-content: center;
 }
 
 .card {
+  border-radius: 12px;
   width: 300px;
   height: 400px;
-  background-color: rgb(49, 48, 48);
+  background-color: var(--navbar-bg);
   margin: 12px;
   margin-bottom: 32px;
 }
 
 .header {
   position: absolute;
-  top: 45%;
+  top: 75%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 65%;
@@ -159,6 +165,31 @@
   max-width: 540px;
   text-decoration: none;
   white-space: break-spaces;
+}
+
+.cardImage {
+  height: 75%;
+  border-radius: 12px;
+
+  & img {
+    border-radius: 12px;
+    width: 100%;
+  }
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  color: var(--text);
+  justify-content: center;
+  align-items: center;
+  height: 25%;
+
+  & .price {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
 }
 
 @keyframes shine {

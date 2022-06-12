@@ -1,17 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./Market.module.scss";
 import Embrio from "assets/images/embrio.png";
-import { Container } from "ui";
+import { Button, Container } from "ui";
 import { useAccount, useConnection } from "ethylene/hooks";
 import { Contract } from "ethers";
 import { CONTRACTS } from "constants/addresses";
-import { MARKETPLACE_ABI } from "constants/abi";
+import { MARKETPLACE_ABI, NFT_TOKEN } from "constants/abi";
 import { formatAddress } from "utils/formatAddress";
+import { Link } from "react-router-dom";
+import { NFT } from "classes/NFT";
 
 const useListedNFT = () => {
   const [events, setEvents] = useState<any[]>([]);
   const [isFetching, setIsFetching] = useState(false);
-  const { address, provider, auth } = useAccount();
+  const { provider, auth } = useAccount();
 
   const fetch = async () => {
     if (!provider) return;
@@ -21,13 +23,13 @@ const useListedNFT = () => {
       MARKETPLACE_ABI,
       provider
     );
+    const NFT_CONTRACT = new Contract(CONTRACTS.NFT, NFT_TOKEN, provider);
 
-    const filter = CONTRACT?.filters.AuctionListed(address);
-    let startBlock = 7045760;
-    const endBlock = provider?.blockNumber;
-    let allEvents: any[] = [];
+    const filter = CONTRACT?.filters.AuctionListed();
+    /*     let startBlock = 7045760;
+    const endBlock = provider?.blockNumber; */
 
-    for (let i = startBlock; i < endBlock; i += 5000) {
+    /* for (let i = startBlock; i < endBlock; i += 5000) {
       const _startBlock = i;
       const _endBlock = Math.min(endBlock, i + 4999);
       const events = await CONTRACT?.queryFilter(
@@ -36,6 +38,39 @@ const useListedNFT = () => {
         _endBlock
       );
       allEvents = [...allEvents, ...(events as any)];
+    } */
+
+    let events = await CONTRACT?.queryFilter(filter as any);
+    const allEvents: NFT[] = [];
+    const fetchJsonImage = async (url: string) => {
+      const promise = () => window.fetch(url);
+      const res = await promise();
+      const json = await res.json();
+      return json;
+    };
+
+    for (let i = 0; i < events.length; i++) {
+      const item = events[i].args;
+      if (item) {
+        let url = await NFT_CONTRACT.baseTokenURI(item.tokenId);
+        url = url.substring(7);
+        try {
+          const json = await fetchJsonImage(`https://ipfs.io/ipfs/${url}`);
+          url = `https://ipfs.io/ipfs/${json.image.substring(7)}`;
+        } catch (err) {
+          console.error(err);
+        }
+
+        const newNFTInstance = new NFT({
+          seller: item.seller,
+          endTime: item.endTime,
+          nftAddress: item.nftAddress,
+          startingPrice: item.startingPrice,
+          tokenId: item.tokenId,
+          uri: url ?? "",
+        });
+        allEvents.push(newNFTInstance);
+      }
     }
     setEvents(allEvents);
     setIsFetching(false);
@@ -52,44 +87,33 @@ const useListedNFT = () => {
 };
 
 const Market = () => {
-  const [loaded, setLoaded] = useState(false);
   const videoRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
   const nftsRef = useRef<HTMLDivElement>(null);
   const [videoPassed, setVideoPassed] = useState(false);
   const { address, auth } = useAccount();
   const { connect } = useConnection();
+
   const { events } = useListedNFT();
 
-  useEffect(() => {
-    document.body.style.background = "black";
-    const timer = setTimeout(() => {
-      setLoaded(true);
-    }, 1000);
-
-    const timer2 = setTimeout(() => {
-      localStorage.setItem("ViridisVideoPlayer", "true");
-      setVideoPassed(true);
-    }, 17000);
-
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(timer2);
-      //document.body.style.background = "inherit";
-    };
-  }, []);
+  console.log(events);
 
   useEffect(() => {
-    if (!loaded) return;
+    if (!videoRef.current || !mainRef.current) return;
+
     const value = localStorage.getItem("ViridisVideoPlayer");
+
     if (value) {
       setVideoPassed(true);
-      videoRef.current?.remove();
     } else {
-      if (!videoRef.current) return;
       videoRef.current.style.opacity = "1";
+      mainRef.current.style.opacity = "0";
+      localStorage.setItem("ViridisVideoPlayer", "true");
+      setTimeout(() => {
+        setVideoPassed(true);
+      }, 17000);
     }
-  }, [loaded]);
+  }, []);
 
   useEffect(() => {
     if (!mainRef.current || !videoRef.current || !nftsRef.current) return;
@@ -108,29 +132,17 @@ const Market = () => {
     }
   }, [videoPassed, mainRef, videoRef]);
 
-  console.log(events);
-
   return (
     <>
-      {loaded && (
-        <div ref={videoRef} className={styles.wrapper}>
-          <h1 className={styles.btnShine}>
-            According to Digiconomist, Ethereum consumes about 112
-            terawatt-hours of electricity per year.
-          </h1>
-          <h1 className={styles.btnShine2}>
-            Which makes more than 650 terawatt-hours of electricity since 2015.
-          </h1>
-          <h1 className={styles.btnShine3}>
-            Use Viridis and contribute to more sustainable world!
-          </h1>
-        </div>
-      )}
-      <div ref={mainRef} className={styles.main}>
+      <div
+        ref={mainRef}
+        className={styles.main}
+        style={{ display: videoPassed ? "flex" : "none" }}
+      >
         <div className={styles.navigation}>
-          <a className={styles.link} href="/">
+          <Link className={styles.link} to="/">
             Home
-          </a>
+          </Link>
           <a className={styles.link} onClick={connect}>
             {auth ? address && formatAddress(address) : "Connect"}
           </a>
@@ -144,11 +156,39 @@ const Market = () => {
           </h2>
         </div>
       </div>
+
+      <div
+        style={{ display: videoPassed ? "none" : "inherit" }}
+        ref={videoRef}
+        className={styles.wrapper}
+      >
+        <h1 className={styles.btnShine}>
+          According to Digiconomist, Ethereum consumes about 112 terawatt-hours
+          of electricity per year.
+        </h1>
+        <h1 className={styles.btnShine2}>
+          Which makes more than 650 terawatt-hours of electricity since 2015.
+        </h1>
+        <h1 className={styles.btnShine3}>
+          Use Viridis and contribute to more sustainable world!
+        </h1>
+      </div>
       <Container elRef={nftsRef} className={styles.nfts}>
-        <div className={styles.card}></div>
-        <div className={styles.card}></div>
-        <div className={styles.card}></div>
-        <div className={styles.card}></div>
+        {events.slice(1).map((item: NFT, index) => {
+          return (
+            <div key={index} className={styles.card}>
+              <div className={styles.cardImage}>
+                <img src={item.uri} />
+              </div>
+              <div className={styles.buttons}>
+                <span className={styles.price}>
+                  {item.startingPrice.toString()} WEI
+                </span>
+                <Button>BID</Button>
+              </div>
+            </div>
+          );
+        })}
       </Container>
     </>
   );
