@@ -10,7 +10,7 @@ const Home = () => {
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    document.body.style.background = "#6F162E";
+    document.body.style.background = "black";
     const onScroll = (e: any) => {
       if (textRef.current) {
         if (window.scrollY > 120) {

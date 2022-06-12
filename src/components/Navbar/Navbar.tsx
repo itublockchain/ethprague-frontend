@@ -21,7 +21,13 @@ import { useModal } from "hooks";
 import { toast } from "react-toastify";
 import WhiteLogo from "assets/images/logos/white.png";
 
-const Navbar = ({ transparent = false }: { transparent?: boolean }) => {
+const Navbar = ({
+  transparent = false,
+  neutralButton = false,
+}: {
+  transparent?: boolean;
+  neutralButton?: boolean;
+}) => {
   const { theme, toggleTheme } = useTheme();
   const { pathname } = useLocation();
   const auth = useAuth();
@@ -107,11 +113,11 @@ const Navbar = ({ transparent = false }: { transparent?: boolean }) => {
               </div>
             )}
           </div>
-          <div className={styles.nfts}>
+          {/*  <div className={styles.nfts}>
             <Link to={PATHS.profile} className={clsnm(styles.profile, "link")}>
               See my NFT's
             </Link>
-          </div>
+          </div> */}
         </div>
       </Modal>
       <nav>
@@ -149,7 +155,7 @@ const Navbar = ({ transparent = false }: { transparent?: boolean }) => {
                   modal.open();
                 }
               }}
-              color={transparent ? "red" : "neutral"}
+              color={transparent && !neutralButton ? "red" : "neutral"}
               className={clsnm(styles.themeChanger, styles.accountButton)}
             >
               <span className={styles.walletIcon}>

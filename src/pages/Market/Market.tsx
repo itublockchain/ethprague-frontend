@@ -14,6 +14,7 @@ import { useTypedSelector } from "store";
 import { Contract as StarknetContract } from "starknet";
 import { AUCTION } from "constants/starknet_abi";
 import { toast } from "react-toastify";
+import { Navbar } from "components";
 
 const useListedNFT = () => {
   const [events, setEvents] = useState<any[]>([]);
@@ -172,19 +173,20 @@ const Market = () => {
           </Button>
         </div>
       </Modal>
+      <Navbar transparent neutralButton />
       <div
         ref={mainRef}
         className={styles.main}
         style={{ display: videoPassed ? "flex" : "none" }}
       >
-        <div className={styles.navigation}>
+        {/*   <div className={styles.navigation}>
           <Link className={styles.link} to="/">
             Home
           </Link>
           <a className={styles.link} onClick={connect}>
             {auth ? address && formatAddress(address) : "Connect"}
           </a>
-        </div>
+        </div> */}
         <img src={Embrio} />
         <div className={styles.text}>
           <h2 className={styles.header}>
