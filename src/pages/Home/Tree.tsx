@@ -41,8 +41,7 @@ const Tree = () => {
       const rect = treeRef.current.getBoundingClientRect();
       const topPos = rect.top + window.scrollY;
       const windowPos = window.scrollY;
-      const range = Math.round((windowPos - topPos + 320) / 30);
-      const range2 = Math.round((windowPos - topPos + 140) / 30);
+      const range = Math.round((windowPos - topPos + 380) / 30);
 
       if (range > 0 && range <= 13) {
         const el = document.getElementById(`image${range}`);
