@@ -537,7 +537,7 @@ const Swap = () => {
                 height="32px"
                 color="ghost"
               >
-                <span className="icon" style={{ color: "black" }}>
+                <span className="icon">
                   <IoMdSwap fontSize={"24px"} />
                 </span>
               </Button>
