@@ -1,14 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./Market.module.scss";
 import Embrio from "assets/images/embrio.png";
-import { Button, Container } from "ui";
+import { Button, Container, Modal } from "ui";
 import { useAccount, useConnection } from "ethylene/hooks";
 import { Contract } from "ethers";
-import { CONTRACTS } from "constants/addresses";
+import { CONTRACTS, STARKNET_CONTRACTS } from "constants/addresses";
 import { MARKETPLACE_ABI, NFT_TOKEN } from "constants/abi";
 import { formatAddress } from "utils/formatAddress";
 import { Link } from "react-router-dom";
 import { NFT } from "classes/NFT";
+import { useModal, useStarknetConnection } from "hooks";
+import { useTypedSelector } from "store";
+import { Contract as StarknetContract } from "starknet";
+import { AUCTION } from "constants/starknet_abi";
+import { toast } from "react-toastify";
 
 const useListedNFT = () => {
   const [events, setEvents] = useState<any[]>([]);
@@ -52,11 +57,13 @@ const useListedNFT = () => {
     for (let i = 0; i < events.length; i++) {
       const item = events[i].args;
       if (item) {
+        let desc = "";
         let url = await NFT_CONTRACT.baseTokenURI(item.tokenId);
         url = url.substring(7);
         try {
           const json = await fetchJsonImage(`https://ipfs.io/ipfs/${url}`);
           url = `https://ipfs.io/ipfs/${json.image.substring(7)}`;
+          desc = json.description;
         } catch (err) {
           console.error(err);
         }
@@ -68,6 +75,7 @@ const useListedNFT = () => {
           startingPrice: item.startingPrice,
           tokenId: item.tokenId,
           uri: url ?? "",
+          desc: desc,
         });
         allEvents.push(newNFTInstance);
       }
@@ -90,16 +98,16 @@ const Market = () => {
   const videoRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
   const nftsRef = useRef<HTMLDivElement>(null);
-  const [videoPassed, setVideoPassed] = useState(false);
+  const [videoPassed, setVideoPassed] = useState(true);
   const { address, auth } = useAccount();
   const { connect } = useConnection();
+  const [selected, setSelected] = useState<NFT | null>(null);
+  const [bidAmount, setBidAmount] = useState("");
 
   const { events } = useListedNFT();
 
-  console.log(events);
-
   useEffect(() => {
-    if (!videoRef.current || !mainRef.current) return;
+    /* if (!videoRef.current || !mainRef.current) return;
 
     const value = localStorage.getItem("ViridisVideoPlayer");
 
@@ -112,7 +120,7 @@ const Market = () => {
       setTimeout(() => {
         setVideoPassed(true);
       }, 17000);
-    }
+    } */
   }, []);
 
   useEffect(() => {
@@ -132,8 +140,38 @@ const Market = () => {
     }
   }, [videoPassed, mainRef, videoRef]);
 
+  const { isStarknetConnected, connectStarknet } = useStarknetConnection();
+  const { starknet } = useTypedSelector((state) => state.starknet);
+  const modal = useModal();
+
   return (
     <>
+      <Modal
+        isOpen={modal.isOpen}
+        close={() => {
+          modal.close();
+          setBidAmount("");
+          setSelected(null);
+        }}
+      >
+        <div className={styles.modal}>
+          <img src={selected?.uri} className={styles.modalImage} />
+          <span className={styles.desc}>{selected?.desc}</span>
+          <input
+            placeholder="Enter Bid Amount"
+            className={styles.modalInput}
+            value={bidAmount}
+            onChange={(e) => setBidAmount(e.target.value)}
+          />
+          <Button
+            style={{ width: "100%", marginTop: "12px", height: "40px" }}
+            color="neutral"
+            onClick={() => {}}
+          >
+            Bid
+          </Button>
+        </div>
+      </Modal>
       <div
         ref={mainRef}
         className={styles.main}
@@ -156,22 +194,20 @@ const Market = () => {
           </h2>
         </div>
       </div>
-
       <div
         style={{ display: videoPassed ? "none" : "inherit" }}
         ref={videoRef}
         className={styles.wrapper}
       >
         <h1 className={styles.btnShine}>
-          According to Digiconomist, Ethereum consumes about 112 terawatt-hours
-          of electricity per year.
+          Ethereum has consumed and continues to consume a total of 407.95 TWh
+          of energy since May 2017.
         </h1>
         <h1 className={styles.btnShine2}>
-          Which makes more than 650 terawatt-hours of electricity since 2015.
+          As Ethereum is already moving towards a greener path, we must do
+          something about our carbon footprint
         </h1>
-        <h1 className={styles.btnShine3}>
-          Use Viridis and contribute to more sustainable world!
-        </h1>
+        <h1 className={styles.btnShine3}>Witness the rebirth with Viridis!</h1>
       </div>
       <Container elRef={nftsRef} className={styles.nfts}>
         {events.slice(1).map((item: NFT, index) => {
@@ -184,7 +220,69 @@ const Market = () => {
                 <span className={styles.price}>
                   {item.startingPrice.toString()} WEI
                 </span>
-                <Button>BID</Button>
+                <span
+                  style={{
+                    wordBreak: "break-all",
+                    fontSize: "12px",
+                    textAlign: "center",
+                  }}
+                  className={styles.price}
+                >
+                  NFT Addr: {item.nftAdress.toString()}
+                </span>
+                <span
+                  style={{
+                    wordBreak: "break-all",
+                    fontSize: "12px",
+                    textAlign: "center",
+                  }}
+                  className={styles.price}
+                >
+                  Token Id: {item.tokenId.toString()}
+                </span>
+                {isStarknetConnected ? (
+                  <Button
+                    onClick={async () => {
+                      /*          const ctc = new StarknetContract(
+                        AUCTION as any,
+                        STARKNET_CONTRACTS.AUCTION,
+                        starknet.provider
+                      );
+
+                      const _res = await ctc.get_auction_details(
+                        "0xf5de760f2e916647fd766b4ad9e85ff943ce3a2b",
+                        903177
+                      );
+
+                      ctc.connect(starknet.account);
+                      const res = await ctc.estimateFee.add_bid(
+                        item.nftAdress.toString(),
+                        item.tokenId.toString(),
+                        100,
+                        {
+                          max_fee: 2000000000000,
+                        }
+                      );
+                      console.log(res); */
+                      setSelected(item);
+                      modal.open();
+                    }}
+                  >
+                    BID
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => {
+                      try {
+                        connectStarknet();
+                      } catch (err) {
+                        toast("Could not connect, try refreshing the page");
+                      }
+                    }}
+                  >
+                    Connect Starknet
+                  </Button>
+                )}
               </div>
             </div>
           );

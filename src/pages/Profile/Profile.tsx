@@ -1,7 +1,12 @@
+import { Navbar } from "components";
 import styles from "./Profile.module.scss";
 
 const Profile = () => {
-  return <div>Profile</div>;
+  return (
+    <>
+      <Navbar />
+    </>
+  );
 };
 
 export { Profile };

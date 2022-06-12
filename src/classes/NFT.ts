@@ -7,6 +7,7 @@ export class NFT {
   startingPrice: BigNumber;
   endTime: BigNumber;
   uri?: string;
+  desc?: string;
 
   constructor({
     seller,
@@ -15,6 +16,7 @@ export class NFT {
     startingPrice,
     endTime,
     uri,
+    desc,
   }: {
     seller: string;
     nftAddress: string;
@@ -22,6 +24,7 @@ export class NFT {
     startingPrice: BigNumber;
     endTime: BigNumber;
     uri?: string;
+    desc?: string;
   }) {
     this.seller = seller;
     this.nftAdress = nftAddress;
@@ -29,5 +32,6 @@ export class NFT {
     this.startingPrice = startingPrice;
     this.endTime = endTime;
     this.uri = uri;
+    this.desc = desc;
   }
 }

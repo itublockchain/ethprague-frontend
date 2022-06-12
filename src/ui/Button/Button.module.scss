@@ -36,6 +36,13 @@
     }
   }
 
+  &.red {
+    background: #6f162e;
+    &:hover {
+      background: #621529;
+    }
+  }
+
   &.left {
     justify-content: flex-start;
   }

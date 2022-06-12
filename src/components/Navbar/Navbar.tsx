@@ -7,7 +7,6 @@ import { BsMoonFill, BsSunFill } from "react-icons/bs";
 import { PATHS } from "constants/paths";
 import { Link, useLocation } from "react-router-dom";
 import { Button, Container, Modal } from "ui";
-import TestLogo from "assets/images/testlogo.png";
 import {
   useAuth,
   useConnection,
@@ -20,8 +19,9 @@ import { MdAccountCircle } from "react-icons/md";
 import { IoMdWallet } from "react-icons/io";
 import { useModal } from "hooks";
 import { toast } from "react-toastify";
+import WhiteLogo from "assets/images/logos/white.png";
 
-const Navbar = () => {
+const Navbar = ({ transparent = false }: { transparent?: boolean }) => {
   const { theme, toggleTheme } = useTheme();
   const { pathname } = useLocation();
   const auth = useAuth();
@@ -57,7 +57,10 @@ const Navbar = () => {
   const modal = useModal();
 
   return (
-    <header className={styles.navbar} id="PeraFinanceHeader">
+    <header
+      className={clsnm(styles.navbar, transparent && styles.transparent)}
+      id="ViridisHeader"
+    >
       <Modal isOpen={modal.isOpen} close={modal.close}>
         <div className={styles.modal}>
           <span>Ethereum Account</span>
@@ -116,9 +119,12 @@ const Navbar = () => {
           <div className={styles.left}>
             <div className={styles.logoWrapper}>
               <Link className="link" to="/">
-                <img alt="Pera Finance Logo" src={TestLogo} />
+                <img alt="Viridis Logo" src={WhiteLogo} />
               </Link>
             </div>
+          </div>
+
+          <div className={styles.buttons}>
             <div className={styles.links}>
               {LINKS.map((item) => (
                 <div key={item.name} className={styles.linkWrapper}>
@@ -132,9 +138,6 @@ const Navbar = () => {
                 </div>
               ))}
             </div>
-          </div>
-
-          <div className={styles.buttons}>
             <Button
               textPosition="right"
               height="48px"
@@ -146,7 +149,7 @@ const Navbar = () => {
                   modal.open();
                 }
               }}
-              color="neutral"
+              color={transparent ? "red" : "neutral"}
               className={clsnm(styles.themeChanger, styles.accountButton)}
             >
               <span className={styles.walletIcon}>
@@ -159,14 +162,14 @@ const Navbar = () => {
                 ? `${formatAddress(address)}`
                 : "Connect"}
             </Button>
-            <Button
+            {/*  <Button
               height="48px"
               onClick={toggleTheme}
               color="neutral"
               className={styles.themeChanger}
             >
               {theme === "dark" ? <BsMoonFill /> : <BsSunFill />}
-            </Button>
+            </Button> */}
             <button
               onClick={() => {
                 setShow(!show);
@@ -198,7 +201,11 @@ const Navbar = () => {
       </nav>
       <div
         ref={smallMenuRef}
-        className={clsnm(styles.smallMenu, !show && styles.hide)}
+        className={clsnm(
+          styles.smallMenu,
+          !show && styles.hide,
+          transparent && styles.transparent
+        )}
       >
         {LINKS.map((item) => (
           <div key={item.name} className={styles.linkWrapper}>
@@ -211,14 +218,14 @@ const Navbar = () => {
             {item.soon && <span className={styles.soon}>SOON</span>}
           </div>
         ))}
-        <Button
+        {/* <Button
           style={{ marginTop: "1rem", height: "48px" }}
           onClick={toggleTheme}
           color="neutral"
           className={styles.themeChangerSm}
         >
           {theme === "dark" ? <BsMoonFill /> : <BsSunFill />}
-        </Button>
+        </Button> */}
       </div>
     </header>
   );
