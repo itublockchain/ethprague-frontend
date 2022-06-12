@@ -6,9 +6,24 @@
 }
 
 .art {
+  position: relative;
   display: flex;
   flex-direction: column;
   width: 45%;
+  min-height: 600px;
+}
+
+.artHeader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: #0b0b0b;
+  letter-spacing: 1px;
+
+  & h2 {
+    font-size: 32px;
+    font-family: "Joan", serif !important;
+  }
 }
 
 .swapWrapper {
@@ -186,7 +201,7 @@
   max-height: 20px;
   max-width: 20px;
   border-radius: 50%;
-  background: green;
+  background: #3acd90;
   user-select: none;
   border: 5px solid white;
   position: absolute;
@@ -211,7 +226,7 @@
 .trackActive {
   position: relative;
   height: 10px;
-  background: green;
+  background: #3acd90;
   border-radius: 24px;
   border-top-right-radius: 0px;
   border-bottom-right-radius: 0px;

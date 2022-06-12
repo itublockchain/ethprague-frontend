@@ -24,11 +24,12 @@ import WhiteLogo from "assets/images/logos/white.png";
 const Navbar = ({
   transparent = false,
   neutralButton = false,
+  isSwap = false,
 }: {
   transparent?: boolean;
   neutralButton?: boolean;
+  isSwap?: boolean;
 }) => {
-  const { theme, toggleTheme } = useTheme();
   const { pathname } = useLocation();
   const auth = useAuth();
   const { isRightNetwork, switchTo } = useRightNetwork(GOERLI);

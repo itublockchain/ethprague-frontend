@@ -6,15 +6,18 @@ export const useInitialTheme = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const localStorageTheme = localStorage.getItem("theme");
-    if (localStorageTheme === "light") {
-      dispatch(setTheme("light"));
-      document.body.classList.remove("dark");
-      document.body.classList.add("light");
-    } else {
+    /*  const localStorageTheme = localStorage.getItem("theme");
+    if (localStorageTheme === "dark") {
       dispatch(setTheme("dark"));
       document.body.classList.remove("light");
       document.body.classList.add("dark");
-    }
+    } else {
+      dispatch(setTheme("light"));
+      document.body.classList.remove("dark");
+      document.body.classList.add("light");
+    } */
+    dispatch(setTheme("dark"));
+    document.body.classList.remove("light");
+    document.body.classList.add("dark");
   }, []);
 };

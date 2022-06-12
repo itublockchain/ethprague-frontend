@@ -52,10 +52,9 @@ const Swap = () => {
   const [ethValue, setEthValue] = useState("");
   const [tokenValue, setTokenValue] = useState("");
   const { from, lastChange, token } = useTypedSelector((state) => state.swap);
-  const { auth, address } = useAccount();
+  const { auth } = useAccount();
   const { connect } = useConnection();
   const { isRightNetwork, switchTo } = useRightNetwork(GOERLI);
-  const navigate = useNavigate();
   const { fetchBlockTimestamp } = useBlockTimestamp();
   const dispatch = useDispatch();
   const { allowance, tokenAllowance } = useAllowance(
@@ -63,8 +62,14 @@ const Swap = () => {
     CONTRACTS.SWAP
   );
 
-  const { provider } = useProvider();
+  useEffect(() => {
+    document.body.style.background = "#DBE6D9";
+    return () => {
+      document.body.style.removeProperty("background");
+    };
+  }, []);
 
+  const { provider } = useProvider();
   const [deadline, setDeadline] = useState("30");
   const [tolerance, setTolerance] = useState("0.5");
   const [router, setRouter] = useState(ROUTER_LIST[0]);
@@ -494,9 +499,14 @@ const Swap = () => {
 
   return (
     <>
-      <Navbar />
+      <Navbar isSwap />
       <Container className={clsnm(styles.wrapper)}>
         <div className={styles.art}>
+          <div className={styles.artHeader}>
+            <h2>
+              Be with us in <br /> saving the world
+            </h2>
+          </div>
           <Art percent={percent} />
         </div>
         <div className={styles.swapWrapper}>
@@ -527,7 +537,7 @@ const Swap = () => {
                 height="32px"
                 color="ghost"
               >
-                <span className="icon">
+                <span className="icon" style={{ color: "black" }}>
                   <IoMdSwap fontSize={"24px"} />
                 </span>
               </Button>
