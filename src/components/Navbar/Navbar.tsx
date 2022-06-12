@@ -50,13 +50,13 @@ const Navbar = ({
         active: pathname.startsWith(PATHS.swap),
       },
       {
-        name: "Marketplace tool",
+        name: "Marketplace Tool",
         url: PATHS.market,
         soon: false,
         active: pathname.startsWith(PATHS.market),
       },
       {
-        name: "Lending tool",
+        name: "Lending Tool",
         url: "#",
         soon: true,
         active: pathname.startsWith("#"),
