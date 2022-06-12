@@ -173,6 +173,7 @@ const Navbar = ({
                     setTimeout(() => {
                       if (videoRef.current) {
                         videoRef.current.style.opacity = "0";
+                        setVideo(false);
                       }
                     }, 17000);
                   }}
