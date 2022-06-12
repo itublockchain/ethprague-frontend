@@ -18,8 +18,6 @@ const Home = () => {
         wrapperRef.current.style.backgroundPosition = ` ${
           50 + posX * 0.1 ?? 50
         }% ${50 - posY ?? 50}%`;
-      } else {
-        wrapperRef.current.style.backgroundPosition = "50% 50%";
       }
     };
 
