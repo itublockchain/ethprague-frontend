@@ -129,3 +129,62 @@
     margin-right: 0px;
   }
 }
+
+
+.bottomCard{
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  border-radius: 10px;
+  margin-top: 22rem;
+  width: 25%;
+
+  .seed{
+    position: absolute;
+    width: 600px;
+    transform: rotate(310deg);
+  }
+
+  .bottomHeader{
+    font-size: 36px;
+  }
+}
+
+@media (max-width: 750px) {
+  .bottomCard{
+
+    margin-top: 22rem;
+    width: 25%;
+
+    .seed{
+      position: absolute;
+      width: 500px;
+      transform: rotate(310deg);
+    }
+
+    .bottomHeader{
+      font-size: 30px;
+    }
+  }
+}
+
+@media (max-width: 500px) {
+  .bottomCard{
+
+    margin-top: 22rem;
+    width: 25%;
+
+    .seed{
+      position: absolute;
+      width: 300px;
+      transform: rotate(310deg);
+    }
+
+    .bottomHeader{
+      font-size: 20px;
+      margin-top: 2rem;
+    }
+  }
+}

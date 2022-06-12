@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import { Container } from "ui";
 import styles from "./Home.module.scss";
 import Landing from "assets/images/landing.png";
+import Seed from "assets/images/tohum.png";
 import { Tree } from "pages/Home/Tree";
 
 const Home = () => {
@@ -100,7 +101,13 @@ const Home = () => {
       </div>
       <div className={styles.bottom}>
         <Tree />
-        <h1 className={styles.bottomHeader}>Be with us in saving the world!</h1>
+
+        <div className={styles.bottomCard}>
+          <img className={styles.seed} src={Seed} />
+          <h1 className={styles.bottomHeader}>
+            Be with us in saving the world!
+          </h1>
+        </div>
       </div>
     </>
   );
