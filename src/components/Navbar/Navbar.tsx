@@ -1,9 +1,7 @@
 import styles from "./Navbar.module.scss";
-import { useTheme } from "hooks/useTheme";
 import { useMemo, useRef, useState } from "react";
 import { clsnm } from "utils/clsnm";
 import { FaBars, FaCopy, FaTimes } from "react-icons/fa";
-import { BsMoonFill, BsSunFill } from "react-icons/bs";
 import { PATHS } from "constants/paths";
 import { Link, useLocation } from "react-router-dom";
 import { Button, Container, Modal } from "ui";
@@ -46,16 +44,22 @@ const Navbar = ({
         active: pathname === PATHS.home,
       },
       {
-        name: "Swap",
+        name: "Dex Tool",
         url: PATHS.swap,
         soon: false,
         active: pathname.startsWith(PATHS.swap),
       },
       {
-        name: "Market",
+        name: "Marketplace tool",
         url: PATHS.market,
         soon: false,
         active: pathname.startsWith(PATHS.market),
+      },
+      {
+        name: "Lending tool",
+        url: "#",
+        soon: true,
+        active: pathname.startsWith("#"),
       },
     ];
   }, [pathname]);
