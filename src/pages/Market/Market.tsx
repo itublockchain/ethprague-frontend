@@ -100,12 +100,11 @@ const Market = () => {
   const mainRef = useRef<HTMLDivElement>(null);
   const nftsRef = useRef<HTMLDivElement>(null);
   const [videoPassed, setVideoPassed] = useState(true);
-  const { address, auth } = useAccount();
-  const { connect } = useConnection();
   const [selected, setSelected] = useState<NFT | null>(null);
   const [bidAmount, setBidAmount] = useState("");
 
   const { events } = useListedNFT();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     /* if (!videoRef.current || !mainRef.current) return;
@@ -165,9 +164,17 @@ const Market = () => {
             onChange={(e) => setBidAmount(e.target.value)}
           />
           <Button
+            loading={loading}
             style={{ width: "100%", marginTop: "12px", height: "40px" }}
             color="neutral"
-            onClick={() => {}}
+            onClick={() => {
+              setLoading(true);
+              setTimeout(() => {
+                modal.close();
+                setLoading(false);
+                toast("Bid successful!");
+              }, 8000);
+            }}
           >
             Bid
           </Button>
