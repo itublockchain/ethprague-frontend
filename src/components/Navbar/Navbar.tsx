@@ -35,6 +35,7 @@ const Navbar = ({
   const { isRightNetwork, switchTo } = useRightNetwork(GOERLI);
   const { connect, disconnect } = useConnection();
   const { address } = useAccount();
+  const [video, setVideo] = useState(false);
 
   const LINKS = useMemo(() => {
     return [
@@ -61,6 +62,7 @@ const Navbar = ({
 
   const [show, setShow] = useState(false);
   const smallMenuRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLDivElement>(null);
   const modal = useModal();
 
   return (
@@ -68,6 +70,23 @@ const Navbar = ({
       className={clsnm(styles.navbar, transparent && styles.transparent)}
       id="ViridisHeader"
     >
+      <div ref={videoRef} className={styles.videoWrapper}>
+        {video && (
+          <>
+            <h1 className={styles.btnShine}>
+              Ethereum has consumed and continues to consume a total of 407.95
+              TWh of energy since May 2017.
+            </h1>
+            <h1 className={styles.btnShine2}>
+              As Ethereum is already moving towards a greener path, we must do
+              something about our carbon footprint
+            </h1>
+            <h1 className={styles.btnShine3}>
+              Witness the rebirth with Viridis!
+            </h1>
+          </>
+        )}
+      </div>
       <Modal isOpen={modal.isOpen} close={modal.close}>
         <div className={styles.modal}>
           <span>Ethereum Account</span>
@@ -144,6 +163,24 @@ const Navbar = ({
                   {item.soon && <span className={styles.soon}>SOON</span>}
                 </div>
               ))}
+              <div className={styles.linkWrapper}>
+                <div
+                  onClick={() => {
+                    setVideo(true);
+                    if (videoRef.current) {
+                      videoRef.current.style.opacity = "1";
+                    }
+                    setTimeout(() => {
+                      if (videoRef.current) {
+                        videoRef.current.style.opacity = "0";
+                      }
+                    }, 17000);
+                  }}
+                  className={clsnm(styles.link)}
+                >
+                  Motivation
+                </div>
+              </div>
             </div>
             <Button
               textPosition="right"
